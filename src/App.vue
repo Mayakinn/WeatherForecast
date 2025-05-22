@@ -4,8 +4,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addByCoords, addByZIP, addByCity } from './service/WeatherService'
 
 const searchModal = ref(false)
-const q = ref<any>('')
-const ids = ref<any[]>([])
+const searchQuery = ref<any>('')
+const storedWeather = ref<any[]>([])
 const weather = ref<any>([])
 const searchTerm = ref('')
 const currentPage = ref(1)
@@ -27,39 +27,39 @@ const paginatedWeathers = computed(() => {
 
 const clickAddButton = () => {
   searchModal.value = true
-  q.value = ''
+  searchQuery.value = ''
 }
 
 const getWeather = async () => {
-  let testCords = regexCords.test(q.value.trim());
-  let testZip = regexzipCode.test(q.value.trim());
+  let testCords = regexCords.test(searchQuery.value.trim());
+  let testZip = regexzipCode.test(searchQuery.value.trim());
   if (testCords) {
-    let split = q.value.trim().split(' ')
+    let split = searchQuery.value.trim().split(' ')
     weather.value = await addByCoords(split)
     if (weather.value != null) {
-      if (!ids.value.some(w => w.name === weather.value.name)) {
-        ids.value.push(weather.value)
-        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      if (!storedWeather.value.some(w => w.name === weather.value.name)) {
+        storedWeather.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(storedWeather.value))
       }
     }
     searchModal.value = false
   }
   else if (testZip) {
-    weather.value = await addByZIP(q.value.trim())
+    weather.value = await addByZIP(searchQuery.value.trim())
     if (weather.value != null) {
-      if (!ids.value.some(w => w.name === weather.value.name)) {
-        ids.value.push(weather.value)
-        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      if (!storedWeather.value.some(w => w.name === weather.value.name)) {
+        storedWeather.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(storedWeather.value))
       }
     }
     searchModal.value = false
   }
   else {
-    weather.value = await addByCity(q.value.trim())
+    weather.value = await addByCity(searchQuery.value.trim())
     if (weather.value != null) {
-      if (!ids.value.some(w => w.name === weather.value.name)) {
-        ids.value.push(weather.value)
-        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      if (!storedWeather.value.some(w => w.name === weather.value.name)) {
+        storedWeather.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(storedWeather.value))
       }
     }
     searchModal.value = false
@@ -67,22 +67,22 @@ const getWeather = async () => {
 }
 
 const filteredWeathers = computed(() => {
-  if (!searchTerm.value.trim()) return ids.value
-  return ids.value.filter(w => {
+  if (!searchTerm.value.trim()) return storedWeather.value
+  return storedWeather.value.filter(w => {
     const term = searchTerm.value.toLowerCase()
     return w.name.toLowerCase().includes(term) || w.sys.country.toLowerCase().includes(term)
   })
 })
 
 const removeWeather = (name: string) => {
-  ids.value = ids.value.filter(w => w.name !== name)
-  localStorage.setItem('weatherData', JSON.stringify(ids.value))
+  storedWeather.value = storedWeather.value.filter(w => w.name !== name)
+  localStorage.setItem('weatherData', JSON.stringify(storedWeather.value))
 }
 
 onMounted(() => {
   const saved = localStorage.getItem('weatherData')
   if (saved) {
-    ids.value = JSON.parse(saved)
+    storedWeather.value = JSON.parse(saved)
   }
   loading.value = false
   intervalId = setInterval(() => {
@@ -102,7 +102,8 @@ onUnmounted(() => {
     <div :class="['modal', { 'is-active': searchModal }]">
       <div class="modal-background" @click="searchModal = false"></div>
       <div class="modal-content">
-        <input class="input" type="text" placeholder="examples: (London) (24.12 23.04) (12345,us)" v-model="q">
+        <input class="input" type="text" placeholder="examples: (London) (24.12 23.04) (12345,us)"
+          v-model="searchQuery">
         <button class="button is-primary" @click="getWeather">Add</button>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="searchModal = false"></button>
