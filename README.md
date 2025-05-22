@@ -14,7 +14,7 @@ A web application for adding and storing weather forecasts by user query
 
 ## How to run it
 
-Copy the variables from .env.example to your own .env file and fill them with your own values.
+Copy the variables from `.env.example` to your own `.env` file and fill them with your own values.
 
 Run these commands in your terminal
 
