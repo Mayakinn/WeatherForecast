@@ -2,7 +2,6 @@ import axios from "axios";
 const apiKey = import.meta.env.VITE_API_KEY;
 
 const addByCoords = async (query: any[]) => {
-  console.log(query);
   try {
     const response = await axios.get(
       "https://api.openweathermap.org/data/2.5/weather",
@@ -27,7 +26,6 @@ const addByCoords = async (query: any[]) => {
 };
 
 const addByZIP = async (query: string) => {
-  console.log("ZIP query:", query);
   try {
     const response = await axios.get(
       "https://api.openweathermap.org/data/2.5/weather",
@@ -51,7 +49,6 @@ const addByZIP = async (query: string) => {
 };
 
 const addByCity = async (query: string) => {
-  console.log(query);
   try {
     const response = await axios.get(
       "https://api.openweathermap.org/data/2.5/weather",

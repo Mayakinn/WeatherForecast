@@ -3,7 +3,6 @@ import WeatherList from './components/WeatherList.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addByCoords, addByZIP, addByCity } from './service/WeatherService'
 
-const apiKey = import.meta.env.VITE_API_KEY;
 const searchModal = ref(false)
 const q = ref<any>('')
 const ids = ref<any[]>([])
@@ -16,7 +15,6 @@ const refreshKey = ref(0)
 const regexCords: RegExp = /^(-?\d+(\.\d+)?)[ ,]+(-?\d+(\.\d+)?)$/gm
 const regexzipCode: RegExp = /\d*[,][a-z]{2}/gm
 let intervalId: ReturnType<typeof setInterval>
-
 
 const totalPages = computed(() =>
   Math.ceil(filteredWeathers.value.length / itemsPerPage)
@@ -35,9 +33,7 @@ const clickAddButton = () => {
 const getWeather = async () => {
   let testCords = regexCords.test(q.value.trim());
   let testZip = regexzipCode.test(q.value.trim());
-  console.log("is it coords : " + testCords + "Is it zip : " + testZip)
   if (testCords) {
-    console.log("COORDINATES")
     let split = q.value.trim().split(' ')
     weather.value = await addByCoords(split)
     if (!ids.value.some(w => w.name === weather.value.name)) {
@@ -47,7 +43,6 @@ const getWeather = async () => {
     }
   }
   else if (testZip) {
-    console.log("ZIP KODAS")
     weather.value = await addByZIP(q.value.trim())
     if (!ids.value.some(w => w.name === weather.value.name)) {
       ids.value.push(weather.value)
@@ -56,7 +51,6 @@ const getWeather = async () => {
     }
   }
   else {
-    console.log("Miestas ")
     weather.value = await addByCity(q.value.trim())
     if (!ids.value.some(w => w.name === weather.value.name)) {
       ids.value.push(weather.value)
@@ -78,6 +72,7 @@ const removeWeather = (name: string) => {
   ids.value = ids.value.filter(w => w.name !== name)
   localStorage.setItem('weatherData', JSON.stringify(ids.value))
 }
+
 onMounted(() => {
   const saved = localStorage.getItem('weatherData')
   if (saved) {
@@ -92,10 +87,12 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(intervalId)
 })
+
 </script>
 
 <template>
   <main>
+
     <div :class="['modal', { 'is-active': searchModal }]">
       <div class="modal-background" @click="searchModal = false"></div>
       <div class="modal-content">
@@ -106,9 +103,11 @@ onUnmounted(() => {
     </div>
 
     <button class="button is-white" @click="clickAddButton">Add new Forecast</button>
+
     <div v-if="loading">
       <p>Loading</p>
     </div>
+
     <div v-else>
       <input class="input my-4" type="text" placeholder="Filter added forecasts..." v-model="searchTerm" />
       <WeatherList :weathers="paginatedWeathers" :removeWeather="removeWeather" :key="refreshKey" />
@@ -121,8 +120,8 @@ onUnmounted(() => {
       </button>
     </div>
 
-
   </main>
 
   <p class="has-text-centered is-size-4">The data is refreshed every 10 minutes!</p>
+
 </template>
