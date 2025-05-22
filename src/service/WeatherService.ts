@@ -22,6 +22,7 @@ const addByCoords = async (query: any[]) => {
   } catch (error) {
     alert("Not found by these coordinates");
     console.error("Error fetching weather:", error);
+    throw new Error("Not found by these coordinates");
   }
 };
 
@@ -45,6 +46,7 @@ const addByZIP = async (query: string) => {
   } catch (error) {
     alert("Not found by this ZIP");
     console.error("Error fetching weather:", error);
+    throw new Error("Not found by the ZIP");
   }
 };
 
@@ -68,6 +70,7 @@ const addByCity = async (query: string) => {
   } catch (error) {
     alert("Not found by this name");
     console.error("Error fetching weather:", error);
+    throw new Error("Not found by the City");
   }
 };
 
