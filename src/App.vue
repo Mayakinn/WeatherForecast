@@ -36,27 +36,33 @@ const getWeather = async () => {
   if (testCords) {
     let split = q.value.trim().split(' ')
     weather.value = await addByCoords(split)
-    if (!ids.value.some(w => w.name === weather.value.name)) {
-      ids.value.push(weather.value)
-      localStorage.setItem('weatherData', JSON.stringify(ids.value))
-      searchModal.value = false
+    if (weather.value != null) {
+      if (!ids.value.some(w => w.name === weather.value.name)) {
+        ids.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      }
     }
+    searchModal.value = false
   }
   else if (testZip) {
     weather.value = await addByZIP(q.value.trim())
-    if (!ids.value.some(w => w.name === weather.value.name)) {
-      ids.value.push(weather.value)
-      localStorage.setItem('weatherData', JSON.stringify(ids.value))
-      searchModal.value = false
+    if (weather.value != null) {
+      if (!ids.value.some(w => w.name === weather.value.name)) {
+        ids.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      }
     }
+    searchModal.value = false
   }
   else {
     weather.value = await addByCity(q.value.trim())
-    if (!ids.value.some(w => w.name === weather.value.name)) {
-      ids.value.push(weather.value)
-      localStorage.setItem('weatherData', JSON.stringify(ids.value))
-      searchModal.value = false
+    if (weather.value != null) {
+      if (!ids.value.some(w => w.name === weather.value.name)) {
+        ids.value.push(weather.value)
+        localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      }
     }
+    searchModal.value = false
   }
 }
 
