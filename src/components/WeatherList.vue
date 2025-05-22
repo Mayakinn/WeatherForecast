@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import WeatherCard from './WeatherCard.vue'
+import WeatherCard from './WeatherCard.vue';
 
 const props = defineProps<{
-  weathers: any[]
-  removeWeather: (name: string) => void
-}>()
+  weathers: any[];
+  removeWeather: (name: string) => void;
+}>();
 </script>
 
 <template>

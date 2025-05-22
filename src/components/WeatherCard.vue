@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { addByCity } from "../service/WeatherService";
+import { ref, onMounted } from 'vue';
+import { addByCity } from "../services/WeatherService";
 
 const props = defineProps<{
   name: string
   onDelete: () => void
-}>()
+}>();
 
-const weather = ref<any>(null)
+const weather = ref<any>(null);
 
 onMounted(async () => {
-  weather.value = await addByCity(props.name)
-})
+  weather.value = await addByCity(props.name);
+});
 </script>
 
 <template>
