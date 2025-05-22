@@ -2,13 +2,13 @@
 import { ref, onMounted } from 'vue'
 import { addByCity } from "../service/WeatherService";
 
-
 const props = defineProps<{
   name: string
   onDelete: () => void
 }>()
 
 const weather = ref<any>(null)
+
 onMounted(async () => {
   weather.value = await addByCity(props.name)
 })

@@ -13,7 +13,7 @@ const itemsPerPage = 10
 const loading = ref(true)
 const refreshKey = ref(0)
 const regexCords: RegExp = /^(-?\d+(\.\d+)?)[ ,]+(-?\d+(\.\d+)?)$/gm
-const regexzipCode: RegExp = /\d*[,][a-z]{2}/gm
+const regexzipCode: RegExp = /\b\d{5},[a-z]{2}\b/gmi
 let intervalId: ReturnType<typeof setInterval>
 
 const totalPages = computed(() =>
