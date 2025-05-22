@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import WeatherList from './components/WeatherList.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
+import { addByCoords, addByZIP, addByCity } from './service/WeatherService'
+
 const apiKey = import.meta.env.VITE_API_KEY;
-console.log(apiKey)
 const searchModal = ref(false)
 const q = ref<any>('')
 const ids = ref<any[]>([])
+const weather = ref<any>([])
 const searchTerm = ref('')
 const currentPage = ref(1)
 const itemsPerPage = 10
 const loading = ref(true)
 const refreshKey = ref(0)
+const regexCords: RegExp = /^(-?\d+(\.\d+)?)[ ,]+(-?\d+(\.\d+)?)$/gm
+const regexzipCode: RegExp = /\d*[,][a-z]{2}/gm
 let intervalId: ReturnType<typeof setInterval>
 
 
@@ -24,137 +27,44 @@ const paginatedWeathers = computed(() => {
   return filteredWeathers.value.slice(start, start + itemsPerPage)
 })
 
-
 const clickAddButton = () => {
   searchModal.value = true
   q.value = ''
 }
 
-const getWeather = () => {
-  const regexCords: RegExp = /^(-?\d+(\.\d+)?)[ ,]+(-?\d+(\.\d+)?)$/gm
-  const regexzipCode: RegExp = /\d*[,][a-z]{2}/gm
+const getWeather = async () => {
   let testCords = regexCords.test(q.value.trim());
   let testZip = regexzipCode.test(q.value.trim());
   console.log("is it coords : " + testCords + "Is it zip : " + testZip)
   if (testCords) {
     console.log("COORDINATES")
     let split = q.value.trim().split(' ')
-    addByCoords(split)
+    weather.value = await addByCoords(split)
+    if (!ids.value.some(w => w.name === weather.value.name)) {
+      ids.value.push(weather.value)
+      localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      searchModal.value = false
+    }
   }
   else if (testZip) {
     console.log("ZIP KODAS")
-    addByZIP(q.value.trim())
+    weather.value = await addByZIP(q.value.trim())
+    if (!ids.value.some(w => w.name === weather.value.name)) {
+      ids.value.push(weather.value)
+      localStorage.setItem('weatherData', JSON.stringify(ids.value))
+      searchModal.value = false
+    }
   }
   else {
     console.log("Miestas ")
-
-    addByCity(q.value.trim())
-  }
-}
-
-const addByCoords = async (query: any[]) => {
-  console.log(query)
-  try {
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
-      params: {
-        lat: query[0],
-        lon: query[1],
-        appid: apiKey,
-        units: 'metric'
-      }
-    })
-
-
-    const data = response.data
-    if (!data.name) {
-      alert(`Error: ${data.message || 'City not found'}`)
-      return
-    }
-    if (!ids.value.some(w => w.name === data.name)) {
-      ids.value.push(data)
-    }
-    localStorage.setItem('weatherData', JSON.stringify(ids.value))
-    searchModal.value = false
-
-  } catch (error) {
-    alert("Not found by these coordinates")
-    console.error('Error fetching weather:', error)
-
-  }
-
-}
-
-const addByZIP = async (query: string) => {
-  console.log('ZIP query:', query)
-  try {
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
-      params: {
-        zip: query,
-        appid: apiKey,
-        units: 'metric'
-      }
-    })
-
-    const data = response.data
-    console.log('Fetched data:', data)
-
-    if (!data.name) {
-      alert(`Error: ${data.message || 'City not found'}`)
-      return
-    }
-
-    const exists = ids.value.some(w => w.name === data.name)
-    console.log('Already exists in ids?', exists)
-
-    if (!exists) {
-      ids.value.push(data)
-      console.log('After push:', ids.value)
+    weather.value = await addByCity(q.value.trim())
+    if (!ids.value.some(w => w.name === weather.value.name)) {
+      ids.value.push(weather.value)
       localStorage.setItem('weatherData', JSON.stringify(ids.value))
-      console.log('Saved to localStorage')
-    } else {
-      console.log('Data already present, skipping push')
+      searchModal.value = false
     }
-
-    searchModal.value = false
-
-  } catch (error) {
-    alert("Not found by this ZIP")
-    console.error('Error fetching weather:', error)
   }
 }
-
-
-const addByCity = async (query: string) => {
-  console.log(query)
-  try {
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
-      params: {
-        q: query,
-        appid: apiKey,
-        units: 'metric'
-      }
-    })
-
-
-    const data = response.data
-    if (!data.name) {
-      alert(`Error: ${data.message || 'City not found'}`)
-      return
-    }
-    if (!ids.value.some(w => w.name === data.name)) {
-      ids.value.push(data)
-    }
-    localStorage.setItem('weatherData', JSON.stringify(ids.value))
-    searchModal.value = false
-
-  } catch (error) {
-    alert("Not found by this name")
-    console.error('Error fetching weather:', error)
-
-  }
-
-}
-
 
 const filteredWeathers = computed(() => {
   if (!searchTerm.value.trim()) return ids.value
@@ -189,8 +99,8 @@ onUnmounted(() => {
     <div :class="['modal', { 'is-active': searchModal }]">
       <div class="modal-background" @click="searchModal = false"></div>
       <div class="modal-content">
-        <input class="input" type="text" placeholder="Search" v-model="q">
-        <button class="button is-primary" @click="getWeather">Press here to Add</button>
+        <input class="input" type="text" placeholder="examples: (London) (24.12 23.04) (12345,us)" v-model="q">
+        <button class="button is-primary" @click="getWeather">Add</button>
       </div>
       <button class="modal-close is-large" aria-label="close" @click="searchModal = false"></button>
     </div>
@@ -214,5 +124,5 @@ onUnmounted(() => {
 
   </main>
 
-  <p class="has-text-centered is-size-4">The data is refreshed every 10 minute!</p>
+  <p class="has-text-centered is-size-4">The data is refreshed every 10 minutes!</p>
 </template>

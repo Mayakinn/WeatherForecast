@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { addByCity } from "../service/WeatherService";
+
 
 const props = defineProps<{
   name: string
@@ -8,21 +9,8 @@ const props = defineProps<{
 }>()
 
 const weather = ref<any>(null)
-const apiKey = import.meta.env.VITE_API_KEY;
 onMounted(async () => {
-  try {
-    const response = await axios.get('https://api.openweathermap.org/data/2.5/weather', {
-      params: {
-        q: props.name,
-        appid: apiKey,
-        units: 'metric'
-      }
-    })
-    weather.value = response.data
-    console.log(weather.value)
-  } catch (error) {
-    console.error('Error fetching weather:', error)
-  }
+  weather.value = await addByCity(props.name)
 })
 </script>
 
