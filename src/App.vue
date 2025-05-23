@@ -122,7 +122,7 @@ onUnmounted(() => {
         <input class="input is-normal" style="width: 300px;" type="text" placeholder="Filter added forecasts..."
           v-model="searchTerm" />
       </div>
-      <WeatherList :weathers="paginatedWeathers" :removeWeather="removeWeather" :key="refreshKey" />
+      <WeatherList :weathers="paginatedWeathers" :onRemoveWeather="removeWeather" :key="refreshKey" />
     </div>
 
     <div class="buttons is-centered mx-5 my-3">
